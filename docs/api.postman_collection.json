@@ -7,6 +7,67 @@
   },
   "item": [
     {
+      "name": "Check Admin Status",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"test@example.com\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/check-admin",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "auth", "check-admin"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Profile",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Name\",\n  \"surname\": \"Updated Surname\",\n  \"profileImage\": \"/new-image.jpg\",\n  \"company\": \"New Company\",\n  \"companyEmail\": \"company@example.com\",\n  \"companyAddress\": \"123 Company St\",\n  \"companyPhone\": \"+1234567890\",\n  \"currentPosition\": \"Senior Developer\",\n  \"referral\": \"LinkedIn\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/auth/profile",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "auth", "profile"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/auth/profile",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "auth", "profile"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Register",
       "request": {
         "method": "POST",

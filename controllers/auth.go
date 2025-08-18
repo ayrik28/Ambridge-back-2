@@ -36,6 +36,20 @@ type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
+// UpdateProfileRequest represents the request body for updating user profile
+type UpdateProfileRequest struct {
+	Name            *string `json:"name"`
+	Surname         *string `json:"surname"`
+	ProfileImage    *string `json:"profileImage"`
+	Referral        *string `json:"referral"`
+	Company         *string `json:"company"`
+	CompanyEmail    *string `json:"companyEmail"`
+	CompanyAddress  *string `json:"companyAddress"`
+	CompanyPhone    *string `json:"companyPhone"`
+	CurrentPosition *string `json:"currentPosition"`
+	ResumeFile      *string `json:"resumeFile"`
+}
+
 // Register handles user registration
 func Register(c *gin.Context) {
 	var req RegisterRequest
@@ -215,5 +229,189 @@ func RefreshToken(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"token":         token,
 		"refresh_token": refreshToken,
+	})
+}
+
+// GetProfile retrieves the user's profile information
+func GetProfile(c *gin.Context) {
+	// Get user ID from JWT token (set by AuthMiddleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Find user by ID
+	var user models.User
+	result := database.DB.First(&user, userID)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
+
+	// Return user profile data (excluding sensitive fields)
+	c.JSON(http.StatusOK, gin.H{
+		"user": gin.H{
+			"name":            user.Name,
+			"surname":         user.Surname,
+			"email":           user.Email,
+			"role":            user.Role,
+			"profileImage":    user.ProfileImage,
+			"referral":        user.ReferralSource,
+			"company":         user.CompanyName,
+			"companyEmail":    user.CompanyEmail,
+			"companyAddress":  user.CompanyAddress,
+			"companyPhone":    user.CompanyPhone,
+			"currentPosition": user.Position,
+			"resumeFile":      user.ResumeFile,
+		},
+	})
+}
+
+// AdminCheckRequest represents the request body for admin check
+type AdminCheckRequest struct {
+	Username string `json:"username" binding:"required"`
+}
+
+// IsAdmin checks if the current user has admin role
+func IsAdmin(c *gin.Context) {
+	// Get user ID from JWT token (set by AuthMiddleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Parse request body to get username
+	var req AdminCheckRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Find token user by ID (the user making the request)
+	var tokenUser models.User
+	result := database.DB.First(&tokenUser, userID)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
+
+	// Find user by username (the user to check)
+	var targetUser models.User
+	result = database.DB.Where("email = ?", strings.ToLower(req.Username)).First(&targetUser)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Username not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
+
+	// Check if target user has admin role
+	isAdmin := targetUser.Role == "admin"
+
+	// Return result
+	c.JSON(http.StatusOK, gin.H{
+		"isAdmin": isAdmin,
+		"user": gin.H{
+			"email": targetUser.Email,
+			"role":  targetUser.Role,
+		},
+	})
+}
+
+// UpdateProfile updates the user's profile information
+func UpdateProfile(c *gin.Context) {
+	// Get user ID from JWT token (set by AuthMiddleware)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Parse request body
+	var req UpdateProfileRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Find user by ID
+	var user models.User
+	result := database.DB.First(&user, userID)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
+
+	// Update user fields if provided in the request
+	if req.Name != nil {
+		user.Name = *req.Name
+	}
+	if req.Surname != nil {
+		user.Surname = *req.Surname
+	}
+	if req.ProfileImage != nil {
+		user.ProfileImage = *req.ProfileImage
+	}
+	if req.Referral != nil {
+		user.ReferralSource = *req.Referral
+	}
+	if req.Company != nil {
+		user.CompanyName = *req.Company
+	}
+	if req.CompanyEmail != nil {
+		user.CompanyEmail = *req.CompanyEmail
+	}
+	if req.CompanyAddress != nil {
+		user.CompanyAddress = *req.CompanyAddress
+	}
+	if req.CompanyPhone != nil {
+		user.CompanyPhone = *req.CompanyPhone
+	}
+	if req.CurrentPosition != nil {
+		user.Position = *req.CurrentPosition
+	}
+	if req.ResumeFile != nil {
+		user.ResumeFile = *req.ResumeFile
+	}
+
+	// Save updated user to database
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		return
+	}
+
+	// Return updated user profile
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Profile updated successfully",
+		"user": gin.H{
+			"name":            user.Name,
+			"surname":         user.Surname,
+			"email":           user.Email,
+			"role":            user.Role,
+			"profileImage":    user.ProfileImage,
+			"referral":        user.ReferralSource,
+			"company":         user.CompanyName,
+			"companyEmail":    user.CompanyEmail,
+			"companyAddress":  user.CompanyAddress,
+			"companyPhone":    user.CompanyPhone,
+			"currentPosition": user.Position,
+			"resumeFile":      user.ResumeFile,
+		},
 	})
 }

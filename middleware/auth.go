@@ -69,8 +69,12 @@ func AdminMiddleware() gin.HandlerFunc {
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
-		if origin == "http://localhost:5173" || origin == "http://192.168.1.1:5173" || origin == "http://192.168.1.88:5173" {
+		if origin != "" {
+			// Allow any origin
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			// Fallback to wildcard if no origin header
+			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		}
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")

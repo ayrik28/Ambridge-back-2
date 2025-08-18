@@ -20,6 +20,9 @@ func SetupAuthRoutes(router *gin.Engine) {
 		authRequired.Use(middleware.AuthMiddleware())
 		{
 			authRequired.POST("/logout", controllers.Logout)
+			authRequired.GET("/profile", controllers.GetProfile)
+			authRequired.PATCH("/profile", controllers.UpdateProfile)
+			authRequired.POST("/check-admin", controllers.IsAdmin)
 		}
 	}
 }
