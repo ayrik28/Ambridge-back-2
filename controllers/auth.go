@@ -15,10 +15,14 @@ import (
 
 // RegisterRequest represents the request body for user registration
 type RegisterRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Surname  string `json:"surname" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	Name            string `json:"name" binding:"required"`
+	Surname         string `json:"surname" binding:"required"`
+	Email           string `json:"email" binding:"required,email"`
+	Password        string `json:"password" binding:"required,min=6"`
+	ProfileImage    string `json:"profileImage"`
+	Referral        string `json:"referral"`
+	Company         string `json:"company"`
+	CurrentPosition string `json:"currentPosition"`
 }
 
 // LoginRequest represents the request body for user login
@@ -60,11 +64,20 @@ func Register(c *gin.Context) {
 
 	// Create user
 	user := models.User{
-		Name:     req.Name,
-		Surname:  req.Surname,
-		Email:    strings.ToLower(req.Email),
-		Password: hashedPassword,
-		Role:     "user",
+		Name:           req.Name,
+		Surname:        req.Surname,
+		Email:          strings.ToLower(req.Email),
+		Password:       hashedPassword,
+		Role:           "user",
+		ProfileImage:   req.ProfileImage,
+		ReferralSource: req.Referral,
+		CompanyName:    req.Company,
+		Position:       req.CurrentPosition,
+	}
+
+	// Set default profile image if not provided
+	if user.ProfileImage == "" {
+		user.ProfileImage = "/default-avatar.png"
 	}
 
 	if err := database.DB.Create(&user).Error; err != nil {
@@ -130,11 +143,15 @@ func Login(c *gin.Context) {
 		"token":         token,
 		"refresh_token": refreshToken,
 		"user": gin.H{
-			"id":      user.ID,
-			"name":    user.Name,
-			"surname": user.Surname,
-			"email":   user.Email,
-			"role":    user.Role,
+			"id":              user.ID,
+			"name":            user.Name,
+			"surname":         user.Surname,
+			"email":           user.Email,
+			"role":            user.Role,
+			"profileImage":    user.ProfileImage,
+			"referral":        user.ReferralSource,
+			"company":         user.CompanyName,
+			"currentPosition": user.Position,
 		},
 	})
 }
