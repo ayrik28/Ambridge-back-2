@@ -74,9 +74,40 @@ func AutoMigrate() error {
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 	`
 
-	// Execute the SQL statement
+	// Execute the SQL statement for users table
 	if err := DB.Exec(userTableSQL).Error; err != nil {
 		log.Fatalf("Failed to create users table: %v", err)
+		return err
+	}
+
+	projectTableSQL := `
+	CREATE TABLE IF NOT EXISTS projects (
+		id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		projlink VARCHAR(255),
+		title VARCHAR(255),
+		type VARCHAR(100),
+		cover VARCHAR(255),
+		logo VARCHAR(255),
+		profilename VARCHAR(255),
+		profilepic VARCHAR(255),
+		aboutproject TEXT,
+		technologies TEXT,
+		linkedin_link VARCHAR(255),
+		telegram_link VARCHAR(255),
+		x_link VARCHAR(255),
+		youtube_link VARCHAR(255),
+		github_link VARCHAR(255),
+		insta_link VARCHAR(255),
+		created_at DATETIME(3) NULL,
+		updated_at DATETIME(3) NULL,
+		deleted_at DATETIME(3) NULL,
+		INDEX idx_projects_deleted_at (deleted_at)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+	`
+
+	// Execute the SQL statement for projects table
+	if err := DB.Exec(projectTableSQL).Error; err != nil {
+		log.Fatalf("Failed to create projects table: %v", err)
 		return err
 	}
 
