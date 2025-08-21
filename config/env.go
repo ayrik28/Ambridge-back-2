@@ -36,9 +36,9 @@ func LoadConfig() {
 		// MySQL Config
 		MySQLHost:     getEnv("MYSQL_HOST", "localhost"),
 		MySQLPort:     getEnv("MYSQL_PORT", "3306"),
-		MySQLUser:     getEnv("MYSQL_USER", "root"),
+		MySQLUser:     getEnv("MYSQL_USER", "ambridge_user"),
 		MySQLPassword: getEnv("MYSQL_PASSWORD", "1362rh83835668@&$"),
-		MySQLDatabase: getEnv("MYSQL_DATABASE", "ambridge"),
+		MySQLDatabase: getEnv("MYSQL_DATABASE", "ambridge_db"),
 
 		// JWT Config
 		JWTSecret:     getEnv("JWT_SECRET", "ambridge_secret_key_change_this_in_production"),
