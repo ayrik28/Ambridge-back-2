@@ -45,3 +45,16 @@ CREATE TABLE IF NOT EXISTS projects (
     insta_link VARCHAR(255),
     INDEX idx_projects_deleted_at (deleted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Create crews table
+CREATE TABLE IF NOT EXISTS crews (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    created_at DATETIME(3) NULL,
+    updated_at DATETIME(3) NULL,
+    deleted_at DATETIME(3) NULL,
+    username VARCHAR(255),
+    role VARCHAR(100),
+    about TEXT,
+    urlphoto VARCHAR(255),
+    INDEX idx_crews_deleted_at (deleted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

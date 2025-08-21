@@ -35,6 +35,7 @@ func main() {
 	// Set up routes
 	routes.SetupAuthRoutes(router)
 	routes.SetupProjectRoutes(router)
+	routes.SetupCrewRoutes(router)
 
 	// Get port from environment variable or use default
 	port := os.Getenv("PORT")
@@ -55,6 +56,7 @@ func autoMigrate() {
 	err := database.DB.AutoMigrate(
 		&models.User{},
 		&models.Project{},
+		&models.Crew{},
 	)
 	if err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)

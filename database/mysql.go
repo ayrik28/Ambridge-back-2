@@ -111,6 +111,26 @@ func AutoMigrate() error {
 		return err
 	}
 
+	crewTableSQL := `
+	CREATE TABLE IF NOT EXISTS crews (
+		id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+		username VARCHAR(255),
+		role VARCHAR(100),
+		about TEXT,
+		urlphoto VARCHAR(255),
+		created_at DATETIME(3) NULL,
+		updated_at DATETIME(3) NULL,
+		deleted_at DATETIME(3) NULL,
+		INDEX idx_crews_deleted_at (deleted_at)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+	`
+
+	// Execute the SQL statement for crews table
+	if err := DB.Exec(crewTableSQL).Error; err != nil {
+		log.Fatalf("Failed to create crews table: %v", err)
+		return err
+	}
+
 	log.Println("Database migrations completed successfully")
 	return nil
 }
