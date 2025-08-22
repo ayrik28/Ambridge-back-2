@@ -9,7 +9,7 @@ import (
 
 // SetupAuthRoutes configures the authentication routes
 func SetupAuthRoutes(router *gin.Engine) {
-	auth := router.Group("/api/auth")
+	auth := router.Group("/auth")
 	{
 		auth.POST("/register", controllers.Register)
 		auth.POST("/login", controllers.Login)

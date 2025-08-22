@@ -9,7 +9,7 @@ import (
 
 // SetupProjectRoutes configures the project routes
 func SetupProjectRoutes(router *gin.Engine) {
-	project := router.Group("/api/projects")
+	project := router.Group("/projects")
 	{
 		// Public routes
 		project.GET("", controllers.GetAllProjects)

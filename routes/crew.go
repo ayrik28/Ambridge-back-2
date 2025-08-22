@@ -9,7 +9,7 @@ import (
 
 // SetupCrewRoutes configures the crew routes
 func SetupCrewRoutes(router *gin.Engine) {
-	crew := router.Group("/api/crews")
+	crew := router.Group("/crews")
 	{
 		// Public routes - anyone can view crew members
 		crew.GET("", controllers.GetAllCrewMembers)
